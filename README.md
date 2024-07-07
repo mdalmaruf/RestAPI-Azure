@@ -89,6 +89,15 @@ Before we begin, make sure you have the following:
   - **Database name**: `MyDatabase`
   - **Server**: Create a new server or use an existing one
   - **Pricing tier**: Choose a free or low-cost tier for testing
+- Summary:
+  - Subscription: Azure for Students
+  - Resource Group: Create or use an existing one
+  - Database Name: Enter the name you prefer
+  - Server: Use an existing server or create a new one
+  - SQL Elastic Pool: Select No to avoid additional costs unless necessary.
+  - Workload Environment: Select Development to use configurations optimized for development workloads.
+  - Compute + Storage: Select the lowest available vCore and storage options.
+  - Backup Storage Redundancy: Select Locally-redundant backup storage.
 - Click `Review + create` and then `Create`.
 
 ### Set Up Firewall Rules:
