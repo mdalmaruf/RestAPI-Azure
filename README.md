@@ -311,7 +311,7 @@ With ASP.NET Core 6.0 and later, the `Startup.cs` file has been merged into the 
 - Once the deployment is complete, navigate to your Azure App Service URL.
 - Append `/swagger` to the URL to access the Swagger UI and test your API.
 
-![My API using Swagger UI](/screenshots/MyAPI.JPG)
+![My API using Swagger UI](/MyAPI.JPG)
 
 ## Conclusion
 
