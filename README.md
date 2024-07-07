@@ -311,6 +311,8 @@ With ASP.NET Core 6.0 and later, the `Startup.cs` file has been merged into the 
 - Once the deployment is complete, navigate to your Azure App Service URL.
 - Append `/swagger` to the URL to access the Swagger UI and test your API.
 
+![My API using Swagger UI](/screenshots/MyAPI.JPG)
+
 ## Conclusion
 
 Congratulations! You've successfully created an ASP.NET Web API, integrated Swagger for documentation, connected to an Azure SQL Database, and published your project to Azure. This setup provides a robust foundation for building and scaling your web applications.
