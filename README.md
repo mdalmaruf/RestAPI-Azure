@@ -102,7 +102,7 @@ Before we begin, make sure you have the following:
 
 ### Set Up Firewall Rules:
 - Once the database is created, go to the SQL server.
-- Under `Security`, select `Firewall and virtual networks`.
+- Under Configure Access, and `Security`, select `Firewall and virtual networks`.
 - Add your client IP address to allow your local machine to access the database.
 
 ## Step 4: Create an ASP.NET Core Web API Project
