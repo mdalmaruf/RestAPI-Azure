@@ -113,40 +113,51 @@ Before we begin, make sure you have the following:
 - Name your project `MyApi` and click `Create`.
 
 ### Add Swagger for API Documentation:
-- Open the `Startup.cs` file and modify the `ConfigureServices` method to include Swagger:
-    ```csharp
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddControllers();
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-        });
-    }
-    ```
-- Modify the `Configure` method to enable Swagger:
-    ```csharp
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-        if (env.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-        }
+With ASP.NET Core 6.0 and later, the `Startup.cs` file has been merged into the `Program.cs` file. Here’s how you can modify the `Program.cs` file to include the necessary configuration for Swagger.
 
+- Open the `Program.cs` file and modify it to include Swagger:
+
+    ```csharp
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.OpenApi.Models;
+    using MyApi.Data;
+    using MyApi.Models;
+
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Add services to the container.
+    builder.Services.AddControllers();
+
+    // Add Swagger for API documentation
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+    });
+
+    // Add DbContext using SQL Server
+    builder.Services.AddDbContext<MyDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+    var app = builder.Build();
+
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         });
-
-        app.UseHttpsRedirection();
-        app.UseRouting();
-        app.UseAuthorization();
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
-        });
     }
+
+    app.UseHttpsRedirection();
+
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.Run();
     ```
 
 ## Step 5: Connect to Azure SQL Database
@@ -158,6 +169,7 @@ Before we begin, make sure you have the following:
 
 ### Add Connection String:
 - In `appsettings.json`, add your connection string:
+
     ```json
     {
         "ConnectionStrings": {
@@ -168,35 +180,34 @@ Before we begin, make sure you have the following:
 
 ### Create a Data Model and DB Context:
 - Add a new folder `Models` and create a `Product.cs` file:
-    ```csharp
-    public class Product
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public decimal Price { get; set; }
-        public string Type { get; set; }
-    }
-    ```
-- Add a `MyDbContext.cs` file in a `Data` folder:
-    ```csharp
-    public class MyDbContext : DbContext
-    {
-        public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
 
-        public DbSet<Product> Products { get; set; }
+    ```csharp
+    namespace MyApi.Models
+    {
+        public class Product
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public decimal Price { get; set; }
+            public string Type { get; set; }
+        }
     }
     ```
-- Update `Startup.cs` to use the DbContext:
+
+- Add a `MyDbContext.cs` file in a `Data` folder:
+
     ```csharp
-    public void ConfigureServices(IServiceCollection services)
+    using Microsoft.EntityFrameworkCore;
+    using MyApi.Models;
+
+    namespace MyApi.Data
     {
-        services.AddDbContext<MyDbContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-        services.AddControllers();
-        services.AddSwaggerGen(c =>
+        public class MyDbContext : DbContext
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-        });
+            public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
+
+            public DbSet<Product> Products { get; set; }
+        }
     }
     ```
 
@@ -204,73 +215,84 @@ Before we begin, make sure you have the following:
 
 ### Create a Controller:
 - Add a `ProductsController.cs` file in the `Controllers` folder:
+
     ```csharp
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProductsController : ControllerBase
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using MyApi.Data;
+    using MyApi.Models;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    namespace MyApi.Controllers
     {
-        private readonly MyDbContext _context;
-
-        public ProductsController(MyDbContext context)
+        [Route("api/[controller]")]
+        [ApiController]
+        public class ProductsController : ControllerBase
         {
-            _context = context;
-        }
+            private readonly MyDbContext _context;
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
-        {
-            return await _context.Products.ToListAsync();
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
-
-            if (product == null)
+            public ProductsController(MyDbContext context)
             {
-                return NotFound();
+                _context = context;
             }
 
-            return product;
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
-        {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetProduct", new { id = product.Id }, product);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
-        {
-            if (id != product.Id)
+            [HttpGet]
+            public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
             {
-                return BadRequest();
+                return await _context.Products.ToListAsync();
             }
 
-            _context.Entry(product).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            [HttpGet("{id}")]
+            public async Task<ActionResult<Product>> GetProduct(int id)
             {
-                return NotFound();
+                var product = await _context.Products.FindAsync(id);
+
+                if (product == null)
+                {
+                    return NotFound();
+                }
+
+                return product;
             }
 
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            [HttpPost]
+            public async Task<ActionResult<Product>> PostProduct(Product product)
+            {
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
 
-            return NoContent();
+                return CreatedAtAction("GetProduct", new { id = product.Id }, product);
+            }
+
+            [HttpPut("{id}")]
+            public async Task<IActionResult> PutProduct(int id, Product product)
+            {
+                if (id != product.Id)
+                {
+                    return BadRequest();
+                }
+
+                _context.Entry(product).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+
+            [HttpDelete("{id}")]
+            public async Task<IActionResult> DeleteProduct(int id)
+            {
+                var product = await _context.Products.FindAsync(id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
         }
     }
     ```
