@@ -1,3 +1,35 @@
+# SOAP, REST, and Web API
+
+| Feature                       | SOAP                                 | REST                                 | Web API                               |
+|-------------------------------|--------------------------------------|--------------------------------------|---------------------------------------|
+| **Protocol**                  | Protocol-based (SOAP)                | Architectural style                  | Framework for building HTTP services  |
+| **Message Format**            | XML only                             | JSON, XML, HTML, plain text          | JSON, XML, etc.                       |
+| **Transport Protocols**       | HTTP, SMTP, TCP                      | HTTP, HTTPS                          | HTTP, HTTPS                           |
+| **Standards**                 | Highly standardized (WSDL, XSD)      | Less standardized, uses HTTP methods | Flexible, no strict standards         |
+| **Operations**                | Uses service interfaces (WSDL)       | Uses standard HTTP methods (GET, POST, PUT, DELETE) | Uses HTTP methods (GET, POST, PUT, DELETE) |
+| **Performance**               | Can be slower due to XML parsing     | Generally faster due to lightweight messages | Similar to REST, performance varies   |
+| **Security**                  | Built-in security (WS-Security)      | Relies on HTTPS for security         | Relies on HTTPS, can use OAuth        |
+| **Statefulness**              | Can be stateful or stateless         | Stateless                           | Stateless                             |
+| **Error Handling**            | Uses SOAP fault                      | Uses HTTP status codes               | Uses HTTP status codes                |
+| **Examples of Technologies**  | .NET (WCF), Java (JAX-WS)            | .NET (ASP.NET Web API), Node.js, Spring Boot | .NET (ASP.NET Core), Node.js, Flask   |
+
+## Examples of Different Technologies
+
+### SOAP
+- **.NET (WCF)**: Windows Communication Foundation (WCF) is used for building SOAP-based services.
+- **Java (JAX-WS)**: Java API for XML Web Services (JAX-WS) is used for creating SOAP web services in Java.
+
+### REST
+- **.NET (ASP.NET Web API)**: ASP.NET Web API is used for building RESTful services in .NET.
+- **Node.js**: Express.js framework is commonly used to create RESTful APIs in Node.js.
+- **Spring Boot**: Spring Boot is used to create RESTful web services in Java.
+
+### Web API
+- **.NET (ASP.NET Core)**: ASP.NET Core is a cross-platform framework for building modern web APIs.
+- **Node.js**: Express.js is used for building web APIs in Node.js.
+- **Flask**: Flask is a lightweight framework for building web APIs in Python.
+
+
 # Creating an ASP.NET Web API with Swagger and Azure SQL Database
 
 In this guide, we'll walk through the steps to create a RESTful Web API using ASP.NET Core, integrate Swagger for API documentation, connect to a SQL Server database on Microsoft Azure, and publish your project to Azure.
